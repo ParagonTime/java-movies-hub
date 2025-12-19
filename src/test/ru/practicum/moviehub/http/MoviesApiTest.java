@@ -474,7 +474,7 @@ public class MoviesApiTest {
 
             HttpResponse.BodyHandler<String> responseBodyHandler =
                     HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8);
-            HttpResponse<String> resp = client.send(req, responseBodyHandler);
+            client.send(req, responseBodyHandler);
         }
         for (int i = 0; i < 20; i++) {
             HttpRequest req = HttpRequest.newBuilder()
@@ -485,7 +485,7 @@ public class MoviesApiTest {
 
             HttpResponse.BodyHandler<String> responseBodyHandler =
                     HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8);
-            HttpResponse<String> resp = client.send(req, responseBodyHandler);
+            client.send(req, responseBodyHandler);
         }
 
     }
@@ -498,14 +498,6 @@ public class MoviesApiTest {
         public MovieEntry(String title, int year) {
             this.title = title;
             this.year = year;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public int getYear() {
-            return year;
         }
     }
 }

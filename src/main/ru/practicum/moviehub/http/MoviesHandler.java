@@ -30,9 +30,11 @@ public class MoviesHandler extends BaseHttpHandler {
     private static final int HTTP_STATUS_NOT_FOUND = 404;
     private static final int HTTP_STATUS_UNSUPPORTED_MEDIA_TYPE = 415;
     private static final int HTTP_STATUS_UNPROCESSABLE_CONTENT = 422;
+    private final Gson gson;
 
-    public MoviesHandler(MoviesStore moviesStore) {
+    public MoviesHandler(MoviesStore moviesStore, Gson gson) {
         super(moviesStore);
+        this.gson = gson;
     }
 
     @Override
@@ -56,7 +58,6 @@ public class MoviesHandler extends BaseHttpHandler {
                     }
                     break;
                 default:
-                    // или вернуть ошибку не используемого метода
                     sendJson(ex, HTTP_STATUS_NOT_FOUND, RESOURCE_NOT_FOUND_MESSAGE);
             }
         } catch (ResponseException errorResponse) {
@@ -77,12 +78,11 @@ public class MoviesHandler extends BaseHttpHandler {
                 sendNoContent(ex, HTTP_STATUS_NOT_FOUND);
             }
         } catch (NumberFormatException e) {
-            throw new ResponseException(VALIDATION_EXCEPTION + " year: " + uriSplit[2], HTTP_STATUS_BAD_REQUEST);
+            throw new ResponseException(VALIDATION_EXCEPTION + " ID: " + uriSplit[2], HTTP_STATUS_BAD_REQUEST);
         }
     }
 
     private void callGetMovies(HttpExchange ex) throws IOException {
-        Gson gson = new Gson();
         String data = gson.toJson(moviesStore.getMovies());
         sendJson(ex, HTTP_STATUS_OK, data);
     }
@@ -91,7 +91,6 @@ public class MoviesHandler extends BaseHttpHandler {
         String[] uriSplit = ex.getRequestURI().toString().split("/");
         try {
             int id = Integer.parseInt(uriSplit[2]);
-            Gson gson = new Gson();
             Movie movie = moviesStore.getMovieById(id);
             if (movie == null) {
                 throw new ResponseException(MOVIE_NOT_FOUND_MESSAGE, HTTP_STATUS_NOT_FOUND);
@@ -113,7 +112,6 @@ public class MoviesHandler extends BaseHttpHandler {
                         HTTP_STATUS_BAD_REQUEST
                 );
             } else {
-                Gson gson = new Gson();
                 String date = gson.toJson(moviesStore.getMoviesByYear(year));
                 sendJson(ex, HTTP_STATUS_OK, date);
             }
@@ -133,7 +131,6 @@ public class MoviesHandler extends BaseHttpHandler {
             JsonElement jsonElement = JsonParser.parseString(body);
 
             if (!jsonElement.isJsonObject()) {
-                System.out.println("1");
                 throw new ResponseException(UNPROCESSABLE_CONTENT_MESSAGE, HTTP_STATUS_UNPROCESSABLE_CONTENT);
             }
 
@@ -151,19 +148,17 @@ public class MoviesHandler extends BaseHttpHandler {
                 errorResponse.addDetails(YEAR_MUST_BE);
             }
             if (!errorResponse.isDetailsEmpty()) {
-                String data = new Gson().toJson(errorResponse);
+                String data = gson.toJson(errorResponse);
                 sendJson(ex, HTTP_STATUS_UNPROCESSABLE_CONTENT, data);
                 return;
             }
 
             Movie newMovie = moviesStore.addMovie(title, year);
-            String data = new Gson().toJson(newMovie);
+            String data = gson.toJson(newMovie);
             sendJson(ex, HTTP_STATUS_CREATED, data);
 
         } catch (JsonSyntaxException e) {
             throw new ResponseException(UNPROCESSABLE_CONTENT_MESSAGE, HTTP_STATUS_UNPROCESSABLE_CONTENT);
-        } catch (IOException e) {
-            System.out.println("error");
         }
     }
 }

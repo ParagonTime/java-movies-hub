@@ -1,6 +1,6 @@
 package ru.practicum.moviehub.api;
 
-public class ResponseException extends Exception {
+public class ResponseException extends RuntimeException {
     private final int statusCode;
 
     public ResponseException(String message, int statusCode) {

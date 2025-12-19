@@ -1,5 +1,6 @@
 package ru.practicum.moviehub.http;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import ru.practicum.moviehub.store.MoviesStore;
 
@@ -14,7 +15,7 @@ public class MoviesServer {
         this.moviesStore = moviesStore;
         try {
             server = HttpServer.create(new InetSocketAddress(port), 0);
-            server.createContext("/movies", new MoviesHandler(moviesStore));
+            server.createContext("/movies", new MoviesHandler(moviesStore, new Gson()));
         } catch (IOException e) {
             throw new RuntimeException("Не удалось создать HTTP-сервер", e);
         }
