@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-abstract public class BaseHttpHandler implements HttpHandler {
+abstract class BaseHttpHandler implements HttpHandler {
 
     private static final int RESPONSE_LENGTH_NO_CONTENT = -1;
     private static final int HTTP_STATUS_NO_CONTENT = 204;
